@@ -20,9 +20,14 @@ module.exports = function rechatSegment(admin) {
     }
 
     const { start, end, videoId, actualStart, actualEnd } = event.data.val();
+    const isLastSeg = end === actualEnd;
 
+    console.log('data', { start, end, videoId, actualStart, actualEnd });
 
     if (end > actualEnd) {
+      // remove it
+      event.data.ref.remove();
+
       /**
        * 處理最終資料
        */
@@ -45,13 +50,6 @@ module.exports = function rechatSegment(admin) {
           });
         });
 
-        // 把空白 segment 補上 index 跟 0
-        const max = _.max(Object.keys(results));
-        for (let i = 0; i < max; i += 1) {
-          if (typeof results[`${i}`] === 'undefined') {
-            results[`${i}`] = 0;
-          }
-        }
 
         // 儲存結果
         return db.ref(`results/${videoId}`).set({
@@ -59,7 +57,7 @@ module.exports = function rechatSegment(admin) {
             start: actualStart,
             end: actualEnd
           },
-          results,
+          results
         })
         .then(() => {
           // 刪除處理中 & 暫存
@@ -71,7 +69,8 @@ module.exports = function rechatSegment(admin) {
               [videoId]: null
             }
           });
-        });
+        })
+        .then(() => true);
       });
     }
 
@@ -80,6 +79,8 @@ module.exports = function rechatSegment(admin) {
      */
     return rechat.loop(videoId, start, end)
     .then((chats) => {
+      console.log('loop results', start, chats.length);
+
       const results = _.countBy(chats, (v) => {
         const t = parseInt(v.attributes.timestamp / 1000, 10);
         return t - actualStart;
@@ -88,34 +89,44 @@ module.exports = function rechatSegment(admin) {
       const last = chats[chats.length - 1];
       const lastTimestamp = _.get(last, 'attributes.timestamp', null);
 
-      const segStart = lastTimestamp + 1;
-      const segEnd = segStart + perSegmentSeconds;
+      const segStart = Math.ceil(lastTimestamp / 1000) + 1;
+      const segEnd = isLastSeg ?
+        actualEnd + 1 :  // just bigger than actualEnd will trigger dump results on next run
+        Math.min(segStart + perSegmentSeconds, actualEnd);
 
       const db = admin.database();
       return db.ref(`_results/${videoId}/${start}`).set(results)
       .then(() => {
+        console.log('loop results set', start);
         return event.data.ref.once('value')
         .then(snapshot => snapshot.exists());
       })
       .then((refStillExists) => {
+        console.log('ref exists', refStillExists);
+
         if (!refStillExists) {
           // don't continue if the ref somehow gets removed
           return null;
         }
 
         // remove it
-        const p1 = event.data.ref.remove();
+        event.data.ref.remove();
 
         // add next
-        const p2 = db.ref(`_running/${videoId}`).push({
+        return db.ref(`_running/${videoId}`).push({
           videoId,
           actualStart,
           actualEnd,
           start: segStart,
           end: segEnd
+        })
+        .then(() => {
+          console.log('next added');
         });
-
-        return Promise.all([p1, p2]);
+      })
+      .then(() => true)
+      .catch((e) => {
+        console.error(e);
       });
     });
   });

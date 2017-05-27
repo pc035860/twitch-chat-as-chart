@@ -23,6 +23,8 @@ module.exports = function rechatRun(admin) {
 
     const videoId = vodId.format(event.params.videoId);
 
+    console.log('video id', videoId, vodId.strip(videoId));
+
     return twitch(`videos/${vodId.strip(videoId)}`)
     .then((res) => {
       const start = parseInt(+new Date(res.data.created_at) / 1000, 10);
@@ -34,6 +36,8 @@ module.exports = function rechatRun(admin) {
       const db = admin.database();
       const ref = db.ref(`_running/${videoId}`);
 
+      console.log('push', videoId, start);
+
       return ref.push({
         videoId,
         start: segStart,
@@ -41,6 +45,10 @@ module.exports = function rechatRun(admin) {
         actualStart: start,
         actualEnd: end
       });
+    })
+    .then(() => true)
+    .catch((e) => {
+      console.error(e);
     });
   });
 };
