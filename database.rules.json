@@ -1,0 +1,20 @@
+{
+  "rules": {
+    "running": {
+      ".read": true,
+      ".write": true
+    },
+    "_running": {
+      ".read": false,
+      ".write": false
+    },
+    "_results": {
+      ".read": false,
+      ".write": false
+    },
+    "results": {
+      ".read": true,
+      ".write": false
+    }
+  }
+}
