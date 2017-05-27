@@ -38,6 +38,7 @@ module.exports = function rechatRun(admin) {
         videoId,
         start: segStart,
         end: segEnd,
+        actualStart: start,
         actualEnd: end
       });
     });

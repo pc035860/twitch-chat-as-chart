@@ -23,7 +23,7 @@ module.exports = function rechatSegment(admin) {
     // remove it
     event.data.ref.remove();
 
-    const { start, end, videoId, actualEnd } = event.data.val();
+    const { start, end, videoId, actualStart, actualEnd } = event.data.val();
 
 
     if (end > actualEnd) {
@@ -38,15 +38,13 @@ module.exports = function rechatSegment(admin) {
         const results = {};
 
         // 合併所有 segment count
-        _.each(val, (localSegs, k) => {
+        _.each(val, (localSegs) => {
           _.each(localSegs, (count, segKey) => {
-            const realSegKey = Number(k) + (Number(segKey) * segNum);
-
-            if (typeof results[realSegKey] === 'undefined') {
-              results[realSegKey] = count;
+            if (typeof results[segKey] === 'undefined') {
+              results[segKey] = count;
             }
             else {
-              results[realSegKey] += count;
+              results[segKey] += count;
             }
           });
         });
@@ -60,7 +58,13 @@ module.exports = function rechatSegment(admin) {
         }
 
         // 儲存結果
-        return db.ref(`results/${videoId}`).set(results)
+        return db.ref(`results/${videoId}`).set({
+          meta: {
+            start: actualStart,
+            end: actualEnd
+          },
+          results,
+        })
         .then(() => {
           // 刪除暫存
           return db.ref(`_results/${videoId}`).remove();
@@ -75,8 +79,7 @@ module.exports = function rechatSegment(admin) {
     .then((chats) => {
       const results = _.countBy(chats, (v) => {
         const t = parseInt(v.attributes.timestamp / 1000, 10);
-        const chunkIndex = Math.floor((t - start) / segNum);
-        return chunkIndex;
+        return t - actualStart;
       });
 
       const last = chats[chats.length - 1];
@@ -90,6 +93,7 @@ module.exports = function rechatSegment(admin) {
       .then(() => {
         return db.ref(`_running/${videoId}`).push({
           videoId,
+          actualStart,
           actualEnd,
           start: segStart,
           end: segEnd
