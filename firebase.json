@@ -6,6 +6,10 @@
     "public": "dist",
     "rewrites": [
       {
+        "source": "/analyze",
+        "function": "analyze"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

@@ -55,4 +55,4 @@ admin.initializeApp(functions.config().firebase);
 
 exports.rechatSegment = require('./rechatSegment')(admin);
 exports.rechatRun = require('./rechatRun')(admin);
-
+exports.analyze = require('./analyze')(admin);

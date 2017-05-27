@@ -5,7 +5,6 @@ const _ = require('lodash');
 
 const config = require('./config');
 
-const segNum = config.statisticalSegment;
 const perSegmentSeconds = config.perSegmentSeconds;
 
 module.exports = function rechatSegment(admin) {
@@ -19,9 +18,6 @@ module.exports = function rechatSegment(admin) {
     if (!event.data.exists()) {
       return undefined;
     }
-
-    // remove it
-    event.data.ref.remove();
 
     const { start, end, videoId, actualStart, actualEnd } = event.data.val();
 
@@ -66,8 +62,15 @@ module.exports = function rechatSegment(admin) {
           results,
         })
         .then(() => {
-          // 刪除暫存
-          return db.ref(`_results/${videoId}`).remove();
+          // 刪除處理中 & 暫存
+          return db.ref().update({
+            running: {
+              [videoId]: null
+            },
+            _results: {
+              [videoId]: null
+            }
+          });
         });
       });
     }
@@ -91,13 +94,28 @@ module.exports = function rechatSegment(admin) {
       const db = admin.database();
       return db.ref(`_results/${videoId}/${start}`).set(results)
       .then(() => {
-        return db.ref(`_running/${videoId}`).push({
+        return event.data.ref.once('value')
+        .then(snapshot => snapshot.exists());
+      })
+      .then((refStillExists) => {
+        if (!refStillExists) {
+          // don't continue if the ref somehow gets removed
+          return null;
+        }
+
+        // remove it
+        const p1 = event.data.ref.remove();
+
+        // add next
+        const p2 = db.ref(`_running/${videoId}`).push({
           videoId,
           actualStart,
           actualEnd,
           start: segStart,
           end: segEnd
         });
+
+        return Promise.all([p1, p2]);
       });
     });
   });

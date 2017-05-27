@@ -1,13 +1,6 @@
 const axios = require('axios');
 const _ = require('lodash');
 
-const delay = (ms = 0) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, ms);
-  });
-};
 
 const one = (videoId, start) => {
   const url = `https://rechat.twitch.tv/rechat-messages?start=${start}&video_id=${videoId}`;
@@ -17,10 +10,6 @@ const one = (videoId, start) => {
 const loop = (videoId, start, end, maxCount = 0, progressFn) => {
   let aggChats = [];
   let count = 0;
-
-  // const _delayLoop = (v, s, e) => {
-  //   return delay().then(() => _loop(v, s, e));  // eslint-disable-line
-  // };
 
   const _loop = (v, s, e) => {
     if (s >= e) {
