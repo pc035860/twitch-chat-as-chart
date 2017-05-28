@@ -1,0 +1,190 @@
+// component-base start
+@import "better-easing";
+@import "rem";
+
+@import "variables";
+
+@import "mixins";
+
+@import "placeholders";
+// component-base end
+
+@import "keyframes";
+
+html {
+	font-size: 100%;
+}
+
+body {
+	background-color: #F4F4F4;
+	font-family: "Helvetica Neue", Arial, Helvetica, Geneva, "微軟正黑體", "Microsoft JhengHei", sans-serif;
+
+	&.mopen {
+		overflow: hidden;
+	}
+}
+
+.r-page {
+
+}
+
+.c-nav {
+	$pointer-color: #4E6659;
+
+	@include rem('padding', 10px 0);
+
+	background-color: #56BA96;
+	text-align: center;
+
+	> a {
+		@include fzr(16px);
+
+		display: inline-block;
+		color: white;
+
+		&.disabled {
+			pointer-events: none;
+			opacity: .6;
+		}
+	}
+
+	> a + a {
+		margin-left: 40px;
+	}
+
+	&__prev {
+		&:before {
+			content: '<';
+
+			display: inline-block;
+			margin-right: 10px;
+			color: $pointer-color;
+			font-weight: bold;
+		}
+	}
+	&__next {
+		&:after {
+			content: '>';
+
+			display: inline-block;
+			margin-left: 10px;
+			color: $pointer-color;
+			font-weight: bold;
+		}
+	}
+}
+
+.c-cards {
+	display: flex;
+	justify-content: flex-start;
+	align-items: stretch;
+	flex-wrap: wrap;
+
+	&__item {
+		flex: 0 0 25%;
+		max-width: 100%;
+		padding: 20px;
+	}
+}
+
+.c-card {
+	display: block;
+	padding: 10px;
+	background-color: white;
+
+	&, &:focus, &:hover {
+		text-decoration: none;
+	}
+
+	&__visual {
+		$padding: 8px;
+
+		position: relative;
+		height: 150px;
+		padding: $padding;
+		background-color: #E3E3E3;
+
+		&__heading {
+			@include fzr(20px);
+
+			margin: 0;
+			color: black;
+		}
+
+		&__meta {
+			position: absolute;
+			left: $padding;
+			bottom: $padding;
+
+			color: #888888;
+			text-align: left;
+		}
+	}
+
+	&__footer {
+		@include fzr(14px);
+		height: 20px;
+		text-align: right;
+		color: black;
+		.fa {
+			color: #FFC325;
+			&.f1 { color: #EA0351; }
+			&.f2 { color: #42E400; }
+			&.f3 { color: #FFC325; }
+		}
+	}
+}
+
+
+.c-modal {
+	position: fixed;
+	left: 0; right: 0;
+	top: 0; bottom: 0;
+	width: 100%;
+	height: 100%;
+
+	background-color: rgba(0,0,0,.7);
+	overflow-x: hidden;
+	overflow-y: scroll;
+
+	&__close {
+		@include fzr(30px);
+		position: fixed;
+		right: 35px;
+		top: 20px;
+		color: #fff !important;
+	}
+
+	&__content {
+		max-width: 700px;
+		margin: 40px auto;
+		padding: 24px;
+		border-radius: 10px;
+		background-color: #F4F4F4;
+
+		> h4 {
+			@include fzr(22px);
+			margin: 0 0 8px;
+			font-weight: bold;
+		}
+
+		> p {
+			color: #858585;
+			font-weight: bold;
+
+			> span {
+				color: #5FAE93;
+			}
+		}
+	}
+
+	pre {
+		@include fzr(16px);
+		padding: 14px;
+		margin: 0;
+		border-radius: 0;
+		border: none;
+		background-color: white;
+		white-space: pre-wrap;
+	}
+}
