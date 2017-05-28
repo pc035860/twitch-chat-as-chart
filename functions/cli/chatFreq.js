@@ -8,14 +8,14 @@ const twitch = createTwitch(config.twitchClientId);
 
 console.time('fullrun');
 
-twitch('videos/138611153').then((res) => {
+twitch('videos/94243030').then((res) => {
   // console.log('video response', res.data);
 
   const videoId = res.data._id;
   const start = parseInt(+new Date(res.data.created_at) / 1000, 10);
   const end = start + Number(res.data.length);
 
-  console.log('[video]', videoId, start, end);
+  console.log('[video]', videoId, start, end, res.data);
 
   return rechat.loop(videoId, start, end, 0, (o) => {
     console.log('[progress]', o.start - start, o.response.data.data.length);

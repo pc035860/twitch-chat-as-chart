@@ -12,6 +12,10 @@
       ".read": false,
       ".write": false
     },
+    "_finishedSegment": {
+      ".read": false,
+      ".write": false
+    },
     "results": {
       ".read": true,
       ".write": false

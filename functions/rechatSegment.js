@@ -6,10 +6,10 @@ const Lazy = require('lazy.js');
 
 const config = require('./config');
 
-const perSegmentSeconds = config.perSegmentSeconds;
+const segmentSeconds = config.segmentSeconds;
 
 module.exports = function rechatSegment(admin) {
-  return functions.database.ref('_running/{videoId}/{pushId}').onWrite((event) => {
+  return functions.database.ref('_running/{videoId}/{segNo}/{pushId}').onWrite((event) => {
     // 只在第一次建立時處理
     if (event.data.previous.exists()) {
       return undefined;
@@ -20,55 +20,28 @@ module.exports = function rechatSegment(admin) {
       return undefined;
     }
 
-    const { start, end, videoId, actualStart, actualEnd } = event.data.val();
+    const segNo = event.params.segNo;
+    const { start, end, videoId, actualStart, actualEnd, segmentCount } = event.data.val();
     const isLastSeg = end === actualEnd;
 
-    console.log('data', { start, end, videoId, actualStart, actualEnd });
+    const db = admin.database();
+
+    console.log('data', { start, end, videoId, actualStart, actualEnd, segmentCount });
 
     if (end > actualEnd) {
       // remove it
-      event.data.ref.remove();
+      const p1 = event.data.ref.remove();
 
-      /**
-       * 處理最終資料
-       */
-      const db = admin.database();
-      return db.ref(`_results/${videoId}`).once('value')
-      .then((snapshot) => {
-        const val = snapshot.val();
+      // add finished segment
+      const p2 = db.ref(`_finishedSegment/${videoId}/count`).transaction((val) => {
+        if (val === null) {
+          return 1;
+        }
+        return val + 1;
+      })
+      .then(({ commited }) => commited);
 
-        const results = Lazy(val)
-        .reduce((agg, v) => {
-          return agg.concat(v);
-        }, Lazy([]))
-        .uniq('id')
-        .countBy((v) => {
-          const t = parseInt(v.attributes.timestamp / 1000, 10);
-          return t - actualStart;
-        })
-        .toObject();
-
-        // 儲存結果
-        return db.ref(`results/${videoId}`).set({
-          meta: {
-            start: actualStart,
-            end: actualEnd
-          },
-          results
-        })
-        .then(() => {
-          // 刪除處理中 & 暫存
-          return db.ref().update({
-            running: {
-              [videoId]: null
-            },
-            _results: {
-              [videoId]: null
-            }
-          });
-        })
-        .then(() => true);
-      });
+      return Promise.all([p1, p2]);
     }
 
     /**
@@ -84,9 +57,8 @@ module.exports = function rechatSegment(admin) {
       const segStart = Math.ceil(lastTimestamp / 1000) + 1;
       const segEnd = isLastSeg ?
         actualEnd + 1 :  // just bigger than actualEnd will trigger dump results on next run
-        Math.min(segStart + perSegmentSeconds, actualEnd);
+        Math.min(segStart + segmentSeconds.sub, actualEnd);
 
-      const db = admin.database();
       return db.ref(`_results/${videoId}/${start}`).set(chats)
       .then(() => {
         console.log('loop results set', start);
@@ -105,12 +77,13 @@ module.exports = function rechatSegment(admin) {
         event.data.ref.remove();
 
         // add next
-        return db.ref(`_running/${videoId}`).push({
+        return db.ref(`_running/${videoId}/${segNo}`).push({
           videoId,
           actualStart,
           actualEnd,
           start: segStart,
-          end: segEnd
+          end: segEnd,
+          segmentCount
         })
         .then(() => {
           console.log('next added');

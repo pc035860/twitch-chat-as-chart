@@ -2,6 +2,8 @@ const functions = require('firebase-functions');
 
 module.exports = {
   twitchClientId: process.env.TWITCH_CLIENT_ID || functions.config().twitch.clientid,
-  perSegmentSeconds: 500,
-  statisticalSegment: 10
+  segmentSeconds: {
+    sub: 500,
+    major: 500 * 3
+  }
 };
