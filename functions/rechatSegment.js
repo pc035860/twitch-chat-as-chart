@@ -2,6 +2,7 @@ const functions = require('firebase-functions');
 
 const rechat = require('./utils/rechat');
 const _ = require('lodash');
+const Lazy = require('lazy.js');
 
 const config = require('./config');
 
@@ -36,20 +37,16 @@ module.exports = function rechatSegment(admin) {
       .then((snapshot) => {
         const val = snapshot.val();
 
-        const results = {};
-
-        // 合併所有 segment count
-        _.each(val, (localSegs) => {
-          _.each(localSegs, (count, segKey) => {
-            if (typeof results[segKey] === 'undefined') {
-              results[segKey] = count;
-            }
-            else {
-              results[segKey] += count;
-            }
-          });
-        });
-
+        const results = Lazy(val)
+        .reduce((agg, v) => {
+          return agg.concat(v);
+        }, Lazy([]))
+        .uniq('id')
+        .countBy((v) => {
+          const t = parseInt(v.attributes.timestamp / 1000, 10);
+          return t - actualStart;
+        })
+        .toObject();
 
         // 儲存結果
         return db.ref(`results/${videoId}`).set({
@@ -81,11 +78,6 @@ module.exports = function rechatSegment(admin) {
     .then((chats) => {
       console.log('loop results', start, chats.length);
 
-      const results = _.countBy(chats, (v) => {
-        const t = parseInt(v.attributes.timestamp / 1000, 10);
-        return t - actualStart;
-      });
-
       const last = chats[chats.length - 1];
       const lastTimestamp = _.get(last, 'attributes.timestamp', null);
 
@@ -95,7 +87,7 @@ module.exports = function rechatSegment(admin) {
         Math.min(segStart + perSegmentSeconds, actualEnd);
 
       const db = admin.database();
-      return db.ref(`_results/${videoId}/${start}`).set(results)
+      return db.ref(`_results/${videoId}/${start}`).set(chats)
       .then(() => {
         console.log('loop results set', start);
         return event.data.ref.once('value')

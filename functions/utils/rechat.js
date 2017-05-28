@@ -11,8 +11,19 @@ const loop = (videoId, start, end, maxCount = 0, progressFn) => {
   let aggChats = [];
   let count = 0;
 
-  const _loop = (v, s, e) => {
-    if (s >= e) {
+  const _timeLimitFilter = (v) => {
+    const timestamp = _.get(v, 'attributes.timestamp', null);
+    if (
+      timestamp === null ||
+      Math.floor(timestamp / 1000) > end
+    ) {
+      return false;
+    }
+    return true;
+  };
+
+  const _loop = (v, s) => {
+    if (s > end) {
       return Promise.resolve(aggChats);
     }
     if (count > maxCount && maxCount !== 0) {
@@ -41,19 +52,37 @@ const loop = (videoId, start, end, maxCount = 0, progressFn) => {
         next = s + Math.floor(chunkTime / 1000);
       }
       else {
-        aggChats = aggChats.concat(chats);
+        // 返回的 chat 時間可能已經超過 end
+        // 必須過時間 filter
+        aggChats = aggChats.concat(_.filter(chats, _timeLimitFilter));
 
         const last = chats[chats.length - 1];
         const lastTimestamp = _.get(last, 'attributes.timestamp', null);
 
+        // 最後時間已經超過 end，可以直接結束
+        if ((lastTimestamp / 1000) >= end) {
+          return aggChats;
+        }
+
         next = Math.ceil(lastTimestamp / 1000) + Math.floor(chunkTime / 1000);
+        // 下一輪的開始最多就跟結束時間相同
+        next = Math.min(next, end);
       }
 
-      return _loop(v, next, e);
+      // 開始 = 結束時間，肯定是最後一輪
+      if (s === end) {
+        return aggChats;
+      }
+
+      return _loop(v, next);
     });
   };
 
-  return _loop(videoId, start, end);
+  return _loop(videoId, start)
+  .then((rawChats) => {
+    // 清除 id 相同的 chat
+    return _.uniq(rawChats, 'id');
+  });
 };
 
 module.exports = {
