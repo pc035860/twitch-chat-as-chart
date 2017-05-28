@@ -3,7 +3,7 @@ const _ = require('lodash');
 
 const _create = (version = 5, clientId, token) => {
   let headers = {
-    Accept: 'application/vnd.twitchtv.v3+json',
+    Accept: `application/vnd.twitchtv.v${version}+json`,
     Authorization: `OAuth ${token}`
   };
   if (!token) {

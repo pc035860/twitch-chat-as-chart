@@ -27,7 +27,7 @@ module.exports = function rechatRun(admin) {
 
     return twitch(`videos/${vodId.strip(videoId)}`)
     .then((res) => {
-      const start = parseInt(+new Date(res.data.created_at) / 1000, 10);
+      const start = parseInt(+new Date(res.data.recorded_at) / 1000, 10);
       const end = start + Number(res.data.length);
 
       const segStart = start;
