@@ -2,9 +2,15 @@
 <html lang="en" ng-app="vodAnalyzeApp" ng-strict-di>
 <head>
   <meta charset="UTF-8">
-  <title>Hello World!</title>
+  <title>Twitch 聊天室活躍度視覺化</title>
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+  <!--<link rel="shortcut icon" sizes="32x32" href="https://hi-armory.tw/images/favicon-32.png" />
+  <link rel="shortcut icon" sizes="64x64" href="https://hi-armory.tw/images/favicon-64.png" />
+  <link rel="icon" sizes="32x32" href="https://hi-armory.tw/images/favicon-32.png" />
+  <link rel="icon" sizes="64x64" href="https://hi-armory.tw/images/favicon-64.png" />-->
+
+  <link rel="stylesheet" href="./assets/bootstrap.min.css">
+  <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">-->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
 
@@ -16,7 +22,15 @@
 </head>
 <body ng-controller="AppCtrl as app" ng-class="{'mopen': app.modalOpen}">
 
-  <div ui-view></div>
+  <div class="r-app">
+    <div class="r-app__content">
+      <div ui-view></div>
+    </div>
+    <!--<div class="r-app__footer">
+      由 <a href="https://github.com/pc035860" target="_blank" rel="noopener">@pc035860</a> 製作與維護
+      <a class="github-button" href="https://github.com/pc035860/vod-analyze" data-show-count="true" aria-label="Star pc035860/hi-armory.tw on GitHub">Star</a>
+    </div>-->
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/locale/zh-tw.js"></script>
@@ -34,6 +48,8 @@
   <script src="https://www.gstatic.com/firebasejs/4.0.0/firebase-database.js"></script>
   <script src="https://www.gstatic.com/firebasejs/4.0.0/firebase-storage.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angularFire/2.3.0/angularfire.min.js"></script>
+
+  <script src= "https://player.twitch.tv/js/embed/v1.js"></script>
 
   <script src="assets/app.js"></script>
 </body>

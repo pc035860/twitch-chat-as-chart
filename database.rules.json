@@ -2,7 +2,7 @@
   "rules": {
     "running": {
       ".read": true,
-      ".write": false
+      ".write": true
     },
     "_running": {
       ".read": false,

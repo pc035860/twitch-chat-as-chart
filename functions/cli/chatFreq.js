@@ -8,7 +8,7 @@ const twitch = createTwitch(config.twitchClientId);
 
 console.time('fullrun');
 
-twitch('videos/94243030').then((res) => {
+twitch('videos/144766044').then((res) => {
   // console.log('video response', res.data);
 
   const videoId = res.data._id;

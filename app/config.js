@@ -3,3 +3,7 @@ export const firebase = {
   authDomain: 'vod-analyze.firebaseapp.com',
   databaseURL: 'https://vod-analyze.firebaseio.com/'
 };
+
+export const twitch = {
+  clientId: '95vptajr8kz5yiqdx5ujyzyhq1ryon'
+};

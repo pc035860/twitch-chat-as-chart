@@ -1,0 +1,23 @@
+html {
+	font-size: 100%;
+}
+
+body {
+	background-color: #111;
+	font-family: "Helvetica Neue", Arial, Helvetica, Geneva, "微軟正黑體", "Microsoft JhengHei", sans-serif;
+
+	&.mopen {
+		overflow: hidden;
+	}
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: inherit;
+}
+
+h1, .h1 { @include fzr(40px); }
+h2, .h2 { @include fzr(32px); }
+h3, .h3 { @include fzr(28px); }
+h4, .h4 { @include fzr(24px); }
+h5, .h5 { @include fzr(20px); }
+h6, .h6 { @include fzr(16px); }

@@ -1,10 +1,60 @@
-<div class="container">
-  <h3>Vod page: {{::'v' + $ctrl.videoId}}</h3>
-  <div>
-    <chart
-      width="600"
-      height="300"
-      data="$ctrl.data"
-    />
+<div class="r-vod">
+  <div class="r-vod__content">
+    <div class="container">
+      <h3>
+        <a href="" class="r-vod__go-home" ng-click="$ctrl.goHome()"><i class="fa fa-chevron-left"></i></a>
+        {{::$ctrl.videoData.title}}
+      </h3>
+      <div>
+        <twitch-vod
+          video="{{::'v' + $ctrl.videoId}}"
+          current-time="{{$ctrl.currentTime}}"
+          on-current-time-tick="$ctrl.handleCurrentTimeTick($videoId, $seconds)"
+        ></twitch-vod>
+      </div>
+
+      <div class="r-vod__loading-content" ng-show="$ctrl.data.$resolved && $ctrl.data.results">
+        <div class="c-chart-container">
+          <div class="c-chart-container__indicator-wrap"
+            ng-mouseenter="$ctrl.indicator.showMouse = true"
+            ng-mouseleave="$ctrl.indicator.showMouse = false"
+          >
+            <chart
+              width="60"
+              height="5"
+              data="$ctrl.data"
+              time-group="{{$ctrl.timeGroup}}"
+              on-mousemove="$ctrl.handleMousemove($event, $seconds, $point)"
+              on-drag="$ctrl.handleDrag($event, $seconds, $point)"
+              on-click="$ctrl.handleClick($event, $seconds, $point)"
+            />
+            <div class="c-chart-container__indicator c-chart-container__indicator--current"
+              ng-style="{
+                'transform': 'translateX(' + ($ctrl.indicator.current + 1) + 'px)'
+              }"></div>
+            <div class="c-chart-container__indicator c-chart-container__indicator--mouse ng-anim"
+              ng-show="$ctrl.indicator.showMouse"
+              ng-style="{
+                'transform': 'translateX(' + ($ctrl.indicator.mouse + 1) + 'px)'
+              }"></div>
+          </div>
+        </div>
+        <div class="c-seg-toolbar">
+          計數時間分組
+          <div class="btn-group" role="group" aria-label="time segment">
+            <button type="button" class="btn btn-default"
+              ng-class="{active: $ctrl.timeGroup == x.value}"
+              ng-repeat="x in $ctrl.timeGroupOptions"
+              ng-click="$ctrl.handleTimeGroupClick(x.value)"
+            >{{::x.label}}</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="r-vod__loading" ng-show="!$ctrl.data.$resolved || !$ctrl.data.results">
+        <i class="fa fa-circle-o-notch fa-spin"></i><br>
+        若是初次分析，大概需要 1 分鐘左右的時間，請稍候
+      </div>
+    </div>
   </div>
 </div>

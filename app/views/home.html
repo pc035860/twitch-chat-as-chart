@@ -1,1 +1,22 @@
-home
+<div class="r-home">
+  <div class="container">
+    <div class="r-home__hero">
+      <h1>
+        <img src="~_images/twitch-logo.png" alt="">
+        聊天室活躍度視覺化
+      </h1>
+      <form action="" ng-submit="$ctrl.handleSubmit($ctrl.vodInput);">
+        <div class="input-group input-group-lg">
+          <input type="text" class="form-control r-home__input" placeholder="請輸入 Twitch VOD ID 或是 VOD 網址"
+          ng-model="$ctrl.vodInput" />
+          <span class="input-group-btn">
+            <button class="btn btn-default btn-twitch" type="submit">查詢</button>
+          </span>
+        </div>
+        <div class="r-home__input-example">
+          例如 <code ng-click="$ctrl.vodInput = '147480480'">147480480</code> 或 <code ng-click="$ctrl.vodInput = 'https://twitch.tv/videos/147480480'">https://twitch.tv/videos/147480480</code>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

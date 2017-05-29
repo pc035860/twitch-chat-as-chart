@@ -17,6 +17,7 @@ const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const AssetsPlugin = require('assets-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const IS_DEVELOPMENT = process.env.NODE_ENV === 'developement';
@@ -94,7 +95,8 @@ const config = {
     firebase: 'firebase',
     Chart: 'Chart',
     moment: 'moment',
-    lazy: 'Lazy'
+    lazy: 'Lazy',
+    Twitch: 'Twitch',
     // 'lazy'          : 'Lazy',
   },
   module: {
@@ -120,7 +122,7 @@ const config = {
       {
         test: /\.html$/,
         exclude: /node_modules/,
-        loader: 'raw'
+        loader: 'html'
       },
       {
         test: /\.scss$/,
@@ -170,7 +172,10 @@ const config = {
     new webpack.ProvidePlugin({
       angular: 'angular',
       $: 'jquery'
-    })
+    }),
+    new CopyPlugin([
+      { from: './libs/bootstrap.min.css', to: './bootstrap.min.css' }
+    ])
   ]
 };
 

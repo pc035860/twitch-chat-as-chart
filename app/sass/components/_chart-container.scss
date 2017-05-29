@@ -1,0 +1,43 @@
+.c-chart-container {
+  box-sizing: border-box;
+  padding: 0 calc(1em + 2px);
+
+  canvas {
+    margin: 0 auto;
+    background-color: #1a1a1a;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  &__indicator-wrap {
+    position: relative;
+    overflow: hidden;
+  }
+  &__indicator {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    pointer-events: none;
+
+    &--current {
+      left: -100%;
+      width: 100%;
+      background-color: fade-out(gray, .85);
+      border-right: 1px solid gray;
+    }
+    &--mouse {
+      left: -1px;
+      width: 1px;
+      background-color: #e74c3c;
+
+      &.ng-hide-add {
+        animation: fadeOut .3s both;
+      }
+      &.ng-hide-remove {
+        animation: fadeIn .3s both;
+      }
+    }
+  }
+}

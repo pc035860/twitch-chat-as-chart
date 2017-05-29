@@ -48,8 +48,18 @@ module.exports = function rechatSegment(admin) {
      * 處理本 segment
      */
     return rechat.loop(videoId, start, end)
-    .then((chats) => {
-      console.log('loop results', start, chats.length);
+    .then((chats_) => {
+      console.log('loop results', start, chats_.length);
+
+      // 只留下需要的資訊
+      const chats = _.map(chats_, (v) => {
+        return {
+          id: v.id,
+          attributes: {
+            timestamp: _.get(v, 'attributes.timestamp', null)
+          }
+        };
+      });
 
       const last = chats[chats.length - 1];
       const lastTimestamp = _.get(last, 'attributes.timestamp', null);

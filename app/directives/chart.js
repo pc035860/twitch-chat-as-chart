@@ -1,10 +1,10 @@
 import Chart from 'Chart';
 import Lazy from 'lazy';
-import moment from 'moment';
 
 import maxBy from 'lodash/maxBy';
-import countBy from 'lodash/countBy';
 import each from 'lodash/each';
+
+import { toTag } from '_utils/time';
 
 export const NAME = 'chart';
 
@@ -39,19 +39,27 @@ const formatData = (rawData, timeGroup = 60) => {
   .toArray();
 };
 
+const isDataReady = (data) => {
+  return data.$resolved && data.meta && data.results;
+};
+
 /* @ngInject */
 function directive(CHART_COLORS) {
-  const alphaGreen = (alpha) => {
-    return color(CHART_COLORS.green).alpha(alpha).rgbString();
+  const alphaColor = (alpha) => {
+    return color(CHART_COLORS.purple).alpha(alpha).rgbString();
   };
 
   return {
     template,
     restrict: 'E',
     scope: {
+      width: '@',
+      height: '@',
       data: '<',
-      width: '<',
-      height: '<'
+      timeGroup: '@',
+      onMousemove: '&',
+      onClick: '&',
+      onDrag: '&'
     },
     replace: true,
     link(scope, iElm, iAttrs) {
@@ -63,79 +71,156 @@ function directive(CHART_COLORS) {
 
       // console.log(formatData(scope.data));
 
-      scope.$watchCollection('data', (val) => {
-        if (val && val.$resolved && val.meta && val.results) {
-          const timeGroup = (val.meta.end - val.meta.start) / 60;
-          // const data = formatData(scope.data, timeGroup);
-          const data = formatData(scope.data, timeGroup);
-          const chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-              datasets: [{
-                label: '熱度',
-                backgroundColor: alphaGreen(0.2),
-                borderColor: alphaGreen(0.5),
-                pointRadius: 0,
-                borderWidth: 1,
-                data
-              }]
-            },
-            options: {
-              responsive: true,
-              legend: {
-                display: false
-              },
-              animation: {
-                duration: 0, // general animation time
-              },
-              tooltips: {
-                intersect: false,
-                callbacks: {
-                  title(dataList) {
-                    const d = dataList[0].xLabel;
-                    return moment(d).format('HH:mm');
-                  }
-                }
-              },
-              scales: {
-                // xAxes: [{
-                //   type: 'time',
-                //   position: 'bottom'
-                // }]
-                xAxes: [{
-                  type: 'time',
-                  display: true,
-                  scaleLabel: {
-                    display: true,
-                    labelString: '時間'
-                  },
-                  ticks: {
-                    display: false
-                  },
-                  gridLines: {
-                    display: false
-                  }
-                }],
-                yAxes: [{
-                  display: true,
-                  scaleLabel: {
-                    display: true,
-                    labelString: '熱度'
-                  },
-                  ticks: {
-                    display: false
-                  },
-                  gridLines: {
-                    display: false
-                  }
-                }]
-              }
-            }
-          });
+      let fData;
+      let chart;
+      let dragging = false;
 
-          iElm.on('$destroy', () => {
-            chart.destroy();
-          });
+      const chartOptions = {
+        events: ['click', 'mousemove'],
+        responsive: true,
+        legend: {
+          display: false
+        },
+        animation: {
+          duration: 0, // general animation time
+        },
+        tooltips: {
+          enabled: false,
+          intersect: false,
+          callbacks: {
+            title(dataList) {
+              const d = +(dataList[0].xLabel);
+              const tag = toTag((d / 1000) - scope.data.meta.start);
+              return tag;
+            }
+          }
+        },
+        scales: {
+          xAxes: [{
+            type: 'time',
+            display: false,
+            scaleLabel: {
+              display: true,
+              labelString: '時間'
+            },
+            ticks: {
+              display: false
+            },
+            gridLines: {
+              display: false
+            }
+          }],
+          yAxes: [{
+            display: false,
+            scaleLabel: {
+              display: true,
+              labelString: '熱度'
+            },
+            ticks: {
+              display: false
+            },
+            gridLines: {
+              display: false
+            }
+          }]
+        }
+      };
+
+      const retrieveTimeGroup = () => {
+        const tg = scope.timeGroup;
+        const { start, end } = scope.data.meta;
+        return (!tg || tg === 'auto') ? (end - start) / 60 : Number(tg);
+      };
+
+      const createChart = () => {
+        return new Chart(ctx, {
+          type: 'line',
+          data: {
+            datasets: [{
+              label: '熱度',
+              backgroundColor: alphaColor(0.4),
+              borderColor: alphaColor(1),
+              pointRadius: 0,
+              borderWidth: 0.3,
+              data: fData,
+              // steppedLine: true
+            }]
+          },
+          options: chartOptions
+        });
+      };
+
+      scope.$watchCollection('data', (val) => {
+        if (val && isDataReady(val)) {
+          fData = formatData(scope.data, retrieveTimeGroup());
+          chart = createChart();
+        }
+      });
+
+      scope.$watch('timeGroup', (val, lastVal) => {
+        if (val && val !== lastVal && chart) {
+          fData = formatData(scope.data, retrieveTimeGroup());
+          chart.data.datasets[0].data = fData;
+          chart.update();
+        }
+      });
+
+      const prepareEventData = ($evt, d) => {
+        const frac = $evt.offsetX / canvas.width;
+
+        const { start, end } = scope.data.meta;
+        const seconds = (end - start) * frac;
+        const point = d[Math.floor(d.length * frac)];
+
+        return {
+          $event: $evt,
+          $seconds: seconds,
+          $point: point
+        };
+      };
+
+      iElm.on('mousedown', ($evt) => {
+        if (!fData) {
+          return;
+        }
+
+        dragging = true;
+      });
+
+      iElm.on('mouseup', ($evt) => {
+        if (!fData) {
+          return;
+        }
+
+        dragging = false;
+      });
+
+      iElm.on('mousemove', ($evt) => {
+        if (!fData) {
+          return;
+        }
+
+        const evtData = prepareEventData($evt, fData);
+
+        if (dragging) {
+          scope.onDrag(evtData);
+        }
+        else {
+          scope.onMousemove(evtData);
+        }
+      });
+
+      iElm.on('click', ($evt) => {
+        if (!fData) {
+          return;
+        }
+
+        scope.onClick(prepareEventData($evt, fData));
+      });
+
+      iElm.on('$destroy', () => {
+        if (chart) {
+          chart.destroy();
         }
       });
     }

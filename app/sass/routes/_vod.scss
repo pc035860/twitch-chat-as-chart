@@ -1,0 +1,29 @@
+.r-vod {
+  @extend %route-align-center;
+
+  h3 {
+    color: #eee;
+  }
+
+  &__go-home {
+    @include bigger-hotzone(before, 40px);
+
+    position: relative;
+    display: inline-block;
+    color: lighten($tint-color, 5%) !important;
+  }
+
+  &__loading {
+    @include fzr(18px);
+    @include rem('line-height', 32px);
+
+    padding: 20px 0;
+    text-align: center;
+
+    .fa {
+      font-size: 26px;
+      color: rgb(255, 159, 64);
+      animation-duration: .8s;
+    }
+  }
+}
