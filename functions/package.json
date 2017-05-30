@@ -1,6 +1,6 @@
 {
-  "name": "functions",
-  "description": "Cloud Functions for Firebase",
+  "name": "twitch-chat-as-chart-functions",
+  "description": "Twitch 聊天室活躍度繪圖 functions",
   "dependencies": {
     "axios": "^0.16.1",
     "firebase-admin": "~4.2.1",

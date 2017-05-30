@@ -1,7 +1,7 @@
 {
-  "name": "vod-analyze",
+  "name": "twitch-chat-as-chart",
   "version": "1.0.0",
-  "description": "",
+  "description": "Twitch 聊天室活躍度繪圖",
   "main": "app/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
