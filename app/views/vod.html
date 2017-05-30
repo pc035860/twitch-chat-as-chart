@@ -18,7 +18,10 @@
       </div>
     </div>
   </div>
-  <div class="r-vod__chart">
+  <div class="r-vod__chart"
+    vod-floating-panel
+    vfp-active-class="r-vod__chart--float"
+  >
     <div class="container">
       <div class="r-vod__loading-content" ng-show="$ctrl.data.$resolved && $ctrl.data.results">
         <div class="c-chart-container">
