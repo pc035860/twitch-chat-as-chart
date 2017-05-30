@@ -35,8 +35,8 @@ function directive() {
       const tickInterval = Number(scope.tickInterval || DEFAULT_TICK_INTERVAL);
       const intervalId = requestInterval(tickInterval, () => {
         scope.onCurrentTimeTick({
-          $videoId: strip(player.getVideo()),
-          $seconds: player.getCurrentTime()
+          $videoId: Number(strip(player.getVideo())),
+          $seconds: Number(player.getCurrentTime())
         });
       });
 

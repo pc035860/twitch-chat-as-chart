@@ -30,6 +30,10 @@ directives(ngModule);
 components(ngModule);
 
 /* @ngInject */
-function run() { }
+function run($rootScope, $transitions, $location, $window) {
+  $transitions.onSuccess({}, (trans) => {
+    $window.ga('send', 'pageview', $location.path());
+  });
+}
 
 ngModule.run(run);

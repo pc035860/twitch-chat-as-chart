@@ -9,6 +9,14 @@ body {
 	&.mopen {
 		overflow: hidden;
 	}
+
+  // the github button scripting iframe
+  > iframe {
+    visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: -10px;
+  }
 }
 
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {

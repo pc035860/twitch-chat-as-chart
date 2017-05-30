@@ -79,7 +79,7 @@ class VodCtrl {
   handleCurrentTimeTick(videoId, seconds) {
     const { $scope, $state } = this.__deps;
 
-    if (videoId !== this.videoId) {
+    if (videoId && videoId !== this.videoId) {
       this.videoId = videoId;
       $scope.$digest();
       $state.go('vod', { videoId }, { notify: false });

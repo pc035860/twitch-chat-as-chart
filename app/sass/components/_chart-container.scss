@@ -25,7 +25,7 @@
       left: -100%;
       width: 100%;
       background-color: fade-out(gray, .85);
-      border-right: 1px solid gray;
+      border-right: 1px solid fade-out(#fff, .3);
     }
     &--mouse {
       left: -1px;

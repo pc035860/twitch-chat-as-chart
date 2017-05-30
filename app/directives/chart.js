@@ -46,7 +46,7 @@ const isDataReady = (data) => {
 /* @ngInject */
 function directive(CHART_COLORS) {
   const alphaColor = (alpha) => {
-    return color(CHART_COLORS.yellow).lighten(0.2).alpha(alpha).rgbString();
+    return color(CHART_COLORS.blue).lighten(0.2).alpha(alpha).rgbString();
   };
 
   return {
@@ -73,6 +73,7 @@ function directive(CHART_COLORS) {
 
       let fData;
       let chart;
+      let timeGroup;
       let dragging = false;
 
       const chartOptions = {
@@ -89,15 +90,15 @@ function directive(CHART_COLORS) {
           intersect: false,
           callbacks: {
             title(dataList) {
-              const d = +(dataList[0].xLabel);
-              const tag = toTag((d / 1000) - scope.data.meta.start);
+              const diff = timeGroup * dataList[0].index;
+              const tag = toTag(diff);
               return tag;
             }
           }
         },
         scales: {
           xAxes: [{
-            type: 'time',
+            // type: 'time',
             display: false,
             scaleLabel: {
               display: true,
@@ -136,6 +137,7 @@ function directive(CHART_COLORS) {
         return new Chart(ctx, {
           type: 'line',
           data: {
+            labels: fData.map((v, i) => i),
             datasets: [{
               label: '熱度',
               backgroundColor: alphaColor(0.7),
@@ -152,14 +154,17 @@ function directive(CHART_COLORS) {
 
       scope.$watchCollection('data', (val) => {
         if (val && isDataReady(val)) {
-          fData = formatData(scope.data, retrieveTimeGroup());
+          timeGroup = retrieveTimeGroup();
+          fData = formatData(scope.data, timeGroup);
           chart = createChart();
         }
       });
 
       scope.$watch('timeGroup', (val, lastVal) => {
         if (val && val !== lastVal && chart) {
-          fData = formatData(scope.data, retrieveTimeGroup());
+          timeGroup = retrieveTimeGroup();
+          fData = formatData(scope.data, timeGroup);
+          chart.data.labels = fData.map((v, i) => i);
           chart.data.datasets[0].data = fData;
           chart.update();
         }
