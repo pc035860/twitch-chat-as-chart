@@ -1,5 +1,26 @@
 .r-vod {
-  @extend %route-align-center;
+  // @extend %route-align-center;
+
+  &__content {
+    margin-top: 20px;
+  }
+
+  &__chart {
+    position: fixed;
+    left: 0; bottom: 0;
+    width: 100%;
+  }
+
+  &__padding {
+    &__canvas {
+      // 比例: 60:5
+      padding: 0 calc(1em + 2px) 8.3%;
+      height: 0;
+    }
+    &__toolbar {
+      height: 68px;
+    }
+  }
 
   h3 {
     color: #eee;
@@ -25,5 +46,8 @@
       color: rgb(255, 159, 64);
       animation-duration: .8s;
     }
+  }
+  &__loading-content {
+    background-color: fade-out(black, .3);
   }
 }

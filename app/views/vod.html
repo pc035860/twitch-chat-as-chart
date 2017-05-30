@@ -12,7 +12,14 @@
           on-current-time-tick="$ctrl.handleCurrentTimeTick($videoId, $seconds)"
         ></twitch-vod>
       </div>
-
+      <div class="r-vod__padding">
+        <div class="r-vod__padding__canvas">&nbsp;</div>
+        <div class="r-vod__padding__toolbar">&nbsp;</div>
+      </div>
+    </div>
+  </div>
+  <div class="r-vod__chart">
+    <div class="container">
       <div class="r-vod__loading-content" ng-show="$ctrl.data.$resolved && $ctrl.data.results">
         <div class="c-chart-container">
           <div class="c-chart-container__indicator-wrap"
