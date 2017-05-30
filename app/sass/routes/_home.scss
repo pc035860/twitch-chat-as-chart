@@ -52,6 +52,10 @@
   &__about {
     margin-top: 30px;
 
+    > p {
+      @include fzr(16px);
+    }
+
     &__author {
       flex: 0 0;
       margin-bottom: 5px;
@@ -59,11 +63,16 @@
 
       overflow: hidden;
 
-      iframe {
-        position: relative;
-        top: -2px;
-        margin-left: 10px;
-        vertical-align: middle;
+      > a {
+        color: #bbb !important;
+
+        .fa {
+          position: relative;
+          top: 1px;
+          display: inline-block;
+          font-size: 18px;
+          margin-right: 5px;
+        }
       }
     }
   }
