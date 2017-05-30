@@ -1,4 +1,4 @@
-# Twitch 聊天室活躍度視覺化
+# Twitch 聊天室活躍度視覺化工具
 
 ### install
 

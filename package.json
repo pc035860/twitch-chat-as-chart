@@ -1,7 +1,7 @@
 {
   "name": "twitch-chat-as-chart",
   "version": "1.0.0",
-  "description": "Twitch 聊天室活躍度繪圖",
+  "description": "Twitch 聊天室活躍度視覺化工具",
   "main": "app/index.js",
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack-dev-server --config webpack-dev.config.js --hot --inline",

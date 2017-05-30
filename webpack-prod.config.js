@@ -138,7 +138,8 @@ const config = {
     new ExtractTextPlugin(`${OUTPUT_FILENAME}.css`),
     new CopyWebpackPlugin([
       { from: './libs/bootstrap.min.css', to: './bootstrap.min.css' },
-      { from: './images/favicon-*.png', to: './images/', flatten: true }
+      { from: './images/favicon-*.png', to: './images/', flatten: true },
+      { from: './images/fb_share.png', to: './images/', flatten: true }
     ]),
     new HtmlWebpackPlugin({
       hash: false,

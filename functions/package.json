@@ -1,6 +1,6 @@
 {
   "name": "twitch-chat-as-chart-functions",
-  "description": "Twitch 聊天室活躍度繪圖 functions",
+  "description": "Twitch 聊天室活躍度視覺化工具 functions",
   "version": "1.0.0",
   "dependencies": {
     "axios": "^0.16.1",
