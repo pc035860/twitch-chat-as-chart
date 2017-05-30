@@ -46,7 +46,7 @@ const isDataReady = (data) => {
 /* @ngInject */
 function directive(CHART_COLORS) {
   const alphaColor = (alpha) => {
-    return color(CHART_COLORS.purple).alpha(alpha).rgbString();
+    return color(CHART_COLORS.yellow).lighten(0.2).alpha(alpha).rgbString();
   };
 
   return {
@@ -138,7 +138,7 @@ function directive(CHART_COLORS) {
           data: {
             datasets: [{
               label: '熱度',
-              backgroundColor: alphaColor(0.4),
+              backgroundColor: alphaColor(0.7),
               borderColor: alphaColor(1),
               pointRadius: 0,
               borderWidth: 0.3,
