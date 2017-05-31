@@ -51,6 +51,8 @@ module.exports = function rechatSegment(admin) {
     .then((chats_) => {
       console.log('loop results', start, chats_.length);
 
+      const zeroChats = chats_.length === 0;
+
       // 只留下需要的資訊
       const chats = _.map(chats_, (v) => {
         return {
@@ -61,10 +63,18 @@ module.exports = function rechatSegment(admin) {
         };
       });
 
-      const last = chats[chats.length - 1];
-      const lastTimestamp = _.get(last, 'attributes.timestamp', null);
+      let segStart;
+      if (!zeroChats) {
+        // with chats
+        const last = chats[chats.length - 1];
+        const lastTimestamp = _.get(last, 'attributes.timestamp', null);
+        segStart = Math.ceil(lastTimestamp / 1000) + 1;
+      }
+      else {
+        // without chats
+        segStart = end + 1;
+      }
 
-      const segStart = Math.ceil(lastTimestamp / 1000) + 1;
       const segEnd = isLastSeg ?
         actualEnd + 1 :  // just bigger than actualEnd will trigger dump results on next run
         Math.min(segStart + segmentSeconds.sub, actualEnd);
