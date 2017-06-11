@@ -75,6 +75,12 @@ const loop = (videoId, start, end, maxCount = 0, progressFn) => {
       }
 
       return _loop(v, next);
+    }, (err) => {
+      // when bad things happened, we reject with response rather than aggChats
+      return Promise.reject({
+        error: err,
+        chats: aggChats
+      });
     });
   };
 

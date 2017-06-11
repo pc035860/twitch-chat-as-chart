@@ -16,7 +16,14 @@ const formatData = (rawData, timeGroup = 60) => {
   const { meta, results } = rawData;
 
   const gData = {};
+
+  // 需要注意 results 有可能是 array (一般來說是 object)
+  // array 的狀態下，可能會出現 v 的值為 undefined 的情況，需處理
   each(results, (v, k) => {
+    if (typeof v === 'undefined') {
+      return;
+    }
+
     const g = Math.floor(k / timeGroup);
 
     if (typeof gData[g] === 'undefined') {

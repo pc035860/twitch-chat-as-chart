@@ -2,7 +2,6 @@ const functions = require('firebase-functions');
 
 const rechat = require('./utils/rechat');
 const _ = require('lodash');
-const Lazy = require('lazy.js');
 
 const config = require('./config');
 
@@ -25,10 +24,7 @@ module.exports = function rechatSegment(admin) {
     const isLastSeg = end === actualEnd;
 
     const db = admin.database();
-
-    console.log('data', { start, end, videoId, actualStart, actualEnd, segmentCount });
-
-    if (end > actualEnd) {
+    const finalize = () => {
       // remove it
       const p1 = event.data.ref.remove();
 
@@ -41,7 +37,13 @@ module.exports = function rechatSegment(admin) {
       })
       .then(({ commited }) => commited);
 
-      return Promise.all([p1, p2]);
+      return Promise.all([p1, p2]).then(() => true);
+    };
+
+    console.log('data', { start, end, videoId, actualStart, actualEnd, segmentCount });
+
+    if (end > actualEnd) {
+      return finalize();
     }
 
     /**
@@ -111,7 +113,27 @@ module.exports = function rechatSegment(admin) {
       })
       .then(() => true)
       .catch((e) => {
-        console.error(e);
+        console.error('[DB operations error]', e);
+      });
+    })
+    .catch((res) => {
+      console.error('[rechat loop error]', res);
+
+      const { error, chats } = res;
+
+      return db.ref(`_results/${videoId}/${start}`).set({
+        chats,
+        error: true,
+        response: {
+          // can't save non-pure data
+          data: error.response.data,
+          status: error.response.status,
+          headers: error.response.headers
+        }
+      })
+      .then(() => {
+        // 直接結束這個 major segment
+        return finalize();
       });
     });
   });

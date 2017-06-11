@@ -19,6 +19,23 @@ module.exports = function rechatFinish(admin) {
     const videoId = event.params.videoId;
     const db = admin.database();
 
+    const finalize = () => {
+      // 刪除 finished segment
+      const p1 = event.data.ref.remove();
+
+      // 刪除處理中 & 暫存
+      const p2 = db.ref().update({
+        running: {
+          [videoId]: null
+        },
+        _results: {
+          [videoId]: null
+        }
+      });
+
+      return Promise.all([p1, p2]).then(() => true);
+    };
+
     /**
      * 處理最終資料
      */
@@ -26,8 +43,25 @@ module.exports = function rechatFinish(admin) {
     .then((snapshot) => {
       const val = snapshot.val();
 
-      const results = Lazy(val)
+      const lazyVal = Lazy(val);
+
+      const errorCount = lazyVal
+      .filter(v => (!Array.isArray(v) && v.error))
+      .size();
+
+      if (errorCount === lazyVal.size()) {
+        return db.ref(`results/${videoId}`).set({
+          meta: { start, end },
+          error: 'Not available'
+        });
+      }
+
+      const results = lazyVal
       .reduce((agg, v) => {
+        if (!Array.isArray(v)) {
+          // do nothing with non-array
+          return agg;
+        }
         return agg.concat(v);
       }, Lazy([]))
       .uniq('id')
@@ -41,24 +75,8 @@ module.exports = function rechatFinish(admin) {
       return db.ref(`results/${videoId}`).set({
         meta: { start, end },
         results
-      })
-      .then(() => {
-        // 刪除 finished segment
-        const p1 = event.data.ref.remove();
-
-        // 刪除處理中 & 暫存
-        const p2 = db.ref().update({
-          running: {
-            [videoId]: null
-          },
-          _results: {
-            [videoId]: null
-          }
-        });
-
-        return Promise.all([p1, p2]);
-      })
-      .then(() => true);
-    });
+      });
+    })
+    .then(() => finalize());
   });
 };

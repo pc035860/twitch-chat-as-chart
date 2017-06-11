@@ -1,6 +1,25 @@
 .r-vod {
   // @extend %route-align-center;
 
+  %information {
+    @include fzr(18px);
+    @include rem('line-height', 32px);
+
+    padding: 20px 0;
+    text-align: center;
+
+    .fa {
+      font-size: 26px;
+      color: rgb(255, 159, 64);
+      animation-duration: .8s;
+    }
+  }
+
+  %float-content-bg {
+    background-color: rgba(17, 17, 17, 0.8);
+    box-shadow: 0 -6px 8px -5px rgba(0, 0, 0, 0.6);
+  }
+
   &__content {
     margin-top: 20px;
     margin-bottom: 40px;
@@ -14,9 +33,10 @@
     transition: background .5s, box-shadow .2s;
 
     &--float {
-      .r-vod__loading-content {
-        background-color: fade-out(#111, .2);
-        box-shadow: 0 -6px 8px -5px rgba(0, 0, 0, 0.6);
+      .r-vod__loading-content,
+      .r-vod__loading,
+      .r-vod__not-available {
+        @extend %float-content-bg;
       }
     }
   }
@@ -46,16 +66,16 @@
   }
 
   &__loading {
-    @include fzr(18px);
-    @include rem('line-height', 32px);
-
-    padding: 20px 0;
-    text-align: center;
+    @extend %information;
+  }
+  &__not-available {
+    @extend %information;
 
     .fa {
-      font-size: 26px;
-      color: rgb(255, 159, 64);
-      animation-duration: .8s;
+      position: relative;
+      top: -1px;
+      margin-right: 8px;
+      vertical-align: middle;
     }
   }
 }
